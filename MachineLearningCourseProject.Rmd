@@ -1,0 +1,124 @@
+---
+output:
+  html_document:
+    theme: cerulean
+    font-size: 10px
+---
+
+
+####Analysis of HAR Data to Predict Exercise Performance Quality
+
+**Synopsis**
+
+The HAR (Human Activity Recognition) dataset is a collection of accelerometer measurements collected from a group of people performing certain activities. These measurements often are used to provide information on how much they do activity, but rarely on how well they do it.  In this study users were asked to perform barbell lifts correctly and incorrectly in 5 different ways (classe) 
+
++ Class A - exactly according to the specification 
++ Class B - throwing the elbows to the front
++ Class C - lifting the dumbbell only halfway
++ Class D - lowering the dumbbell only halfway
++ Class E - throwing the hips to the front
+
+The goal of this project is to develop a prediction model using machine learning on a training data set and predict the manner the exercise was completed. 
+
+**Loading Data**
+
+Load in the required libraries and the pml-training dataset
+
+
+```{r}
+library(caret)
+library(randomForest)
+
+
+pmlData<- read.csv("pml-training.csv", header = TRUE)
+
+```
+
+
+**Cleaning and Preprocessing**
+
+A visual inspection of the pml training data contains columns that do not have accelerometer data and there are many columns that contain little or no data.  In order to reduce the dataset I will remove the non-accelerometer columns and also remove the columns where the amount of NA data is greater than 10%
+
+ 
+```{r}
+
+##remove the non-accelerometer data
+pmlDataClean <- pmlData[,-c(1:7)]
+
+## convert empty records as NA and remove columns where the amount of NA is greater than 10%
+pmlDataClean[pmlDataClean==""] <- NA
+pmlDataClean <- pmlDataClean[ lapply( pmlDataClean, function(x) sum(is.na(x)) / length(x) ) < 0.1 ]
+
+```
+
+This reduced the number of variables from 160 to 53 (including the classe variable)
+
+**Exploratory Analysis**
+
+A look at the frequency of the class variable...
+
+```{r}
+plot(pmlDataClean$classe, main="Frequency by Classe", xlab="Classe", ylab="Freq")
+
+```
+
+
+```{r}
+
+
+```
+
+**Setting Cross Validation**
+
+I will begin the modelling process by first splitting the training data into train and test subsets.  I kept 75% in the training data and the remaining in the test set that I will use for cross-valdiating my model.
+
+```{r}
+set.seed(1122)
+
+inTrain <- createDataPartition(y=pmlDataClean$classe, p=0.75, list=FALSE)
+
+train <-pmlDataClean[inTrain,]
+test <-pmlDataClean[-inTrain,]
+
+```
+
+
+**Model Selection**
+
+Many methods of classification were attempted, however ultimately I  I chose to develop the final model using random forest due to its high degree of accuracy with a large number of variables where the interactions between the variance are not known.  I did not specify a resampling method and the model chose bootstrapping at 25 repititions. 
+
+
+```{r}
+model  <- train(classe ~ ., data = train, method = "rf")
+model
+
+```
+
+**Performing Cross Validation**
+
+The model was then performed on the test set for cross validation.  The accuracy on the test set was high at 0.996 and an expected out of sample error rate of 0.004 or 0.05%.
+
+```{r}
+predVal<- predict(model, test)
+confusionMatrix(predVal, test$classe)
+```
+
+**Run the final model on the test data set**
+
+```{r}
+Run model against Test Sample
+pmlDataTest<- read.csv("pml-testing.csv", header = TRUE)
+pmlDataTestClean <- pmlDataTest[,-c(1:7)]
+predTest <- predict(model, pmlDataTestClean)
+```
+
+**Results on Test Data**
+
+```{r}
+predTest
+table(predTest)
+```
+
+
+
+
