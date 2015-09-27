@@ -89,14 +89,16 @@ Many methods of classification were attempted, however ultimately I  I chose to 
 
 
 ```{r}
-model  <- train(classe ~ ., data = train, method = "rf")
+fitControl <- trainControl(method = "none")
+tgrid  <- expand.grid(mtry=c(6))
+model  <- train(classe ~ ., data = train, method = "rf", trControl = fitControl, tuneGrid = tgrid)
 model
 
 ```
 
 **Performing Cross Validation**
 
-The model was then performed on the test set for cross validation.  The accuracy on the test set was high at 0.996 and an expected out of sample error rate of 0.004 or 0.04%.
+The model was then performed on the test set for cross validation.  The accuracy on the test set was high at 0.995 and an expected out of sample error rate of 0.005 or 0.05%.
 
 ```{r}
 predVal<- predict(model, test)
