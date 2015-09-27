@@ -37,7 +37,7 @@ pmlData<- read.csv("pml-training.csv", header = TRUE)
 
 **Cleaning and Preprocessing**
 
-A visual inspection of the pml training data contains columns that do not have accelerometer data and there are many columns that contain little or no data.  In order to reduce the dataset I will remove the non-accelerometer columns and also remove the columns where the amount of NA data is greater than 10%
+A visual inspection of the pml training data shows columns that do not have accelerometer data and there are many columns that contain little or no data.  In order to reduce the dataset I will remove the non-accelerometer columns and also remove the columns where the amount of NA data is greater than 10%
 
  
 ```{r}
@@ -85,7 +85,7 @@ test <-pmlDataClean[-inTrain,]
 
 **Model Selection**
 
-Many methods of classification were attempted, however ultimately I  I chose to develop the final model using random forest due to its high degree of accuracy with a large number of variables where the interactions between the variance are not known.  I did not specify a resampling method and the model chose bootstrapping at 25 repititions. 
+Many methods of classification were attempted, however ultimately I  I chose to develop the final model using random forest due to its high degree of accuracy with a large number of variables where the interactions between the variance are not known.  
 
 
 ```{r}
@@ -96,7 +96,7 @@ model
 
 **Performing Cross Validation**
 
-The model was then performed on the test set for cross validation.  The accuracy on the test set was high at 0.996 and an expected out of sample error rate of 0.004 or 0.05%.
+The model was then performed on the test set for cross validation.  The accuracy on the test set was high at 0.996 and an expected out of sample error rate of 0.004 or 0.04%.
 
 ```{r}
 predVal<- predict(model, test)
@@ -106,7 +106,7 @@ confusionMatrix(predVal, test$classe)
 **Run the final model on the test data set**
 
 ```{r}
-Run model against Test Sample
+##Run model against Test Sample
 pmlDataTest<- read.csv("pml-testing.csv", header = TRUE)
 pmlDataTestClean <- pmlDataTest[,-c(1:7)]
 predTest <- predict(model, pmlDataTestClean)
