@@ -1,8 +1,9 @@
 ---
 output:
   html_document:
-    theme: cerulean
     font-size: 10px
+    theme: cerulean
+  pdf_document: default
 ---
 
 
